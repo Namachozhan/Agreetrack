@@ -3,6 +3,7 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: agritrack-backend
+  namespace: chozhanaws3-dev
 spec:
   runPolicy: Serial
   source:
