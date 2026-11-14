@@ -1,1 +1,33 @@
-hh
+
+
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: agritrack-frontend
+  namespace: chozhanaws3-dev
+
+
+
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: agritrack-frontend
+  namespace: chozhanaws3-dev
+spec:
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: https://github.com/Namachozhan/AgriTrack
+      ref: main
+    contextDir: frontend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: agritrack-frontend:latest
+  triggers:
+    - type: ConfigChange
