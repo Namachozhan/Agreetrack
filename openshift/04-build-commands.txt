@@ -1,0 +1,39 @@
+# Run from a workstation with oc CLI logged into the cluster.
+
+# Create the project (or apply 00-namespace.yaml)
+oc new-project agritrack
+
+# Create GitHub PAT secret for a PRIVATE repo only
+oc create secret generic github-pat \
+  --type=kubernetes.io/basic-auth \
+  --from-literal=username=YOUR_GITHUB_USERNAME \
+  --from-literal=password=YOUR_GITHUB_PAT
+
+# Allow the OpenShift builder service account to use the source secret
+oc secrets link builder github-pat
+
+# Apply database, build configs, then application
+oc apply -f openshift/01-database.yaml
+oc apply -f openshift/02-buildconfigs.yaml
+oc apply -f openshift/03-app.yaml
+
+# Start both Dockerfile builds
+oc start-build agritrack-backend
+oc start-build agritrack-frontend
+
+# Watch resources and get Route hostname
+oc get builds -w
+oc get pods -w
+oc get route agritrack
+
+
+# Create database credentials as Secrets (do NOT commit passwords to Git).
+# Use the SAME password in both commands. Prefer a long alphanumeric value
+# so it does not need URL-encoding inside DATABASE_URL.
+oc create secret generic agritrack-db \
+  --from-literal=POSTGRESQL_USER=agritrack \
+  --from-literal=POSTGRESQL_PASSWORD=REPLACE_WITH_LONG_RANDOM_ALPHANUMERIC_PASSWORD \
+  --from-literal=POSTGRESQL_DATABASE=agritrack
+
+oc create secret generic agritrack-backend \
+  --from-literal=DATABASE_URL='postgresql+psycopg://agritrack:REPLACE_WITH_LONG_RANDOM_ALPHANUMERIC_PASSWORD@agritrack-postgres:5432/agritrack'

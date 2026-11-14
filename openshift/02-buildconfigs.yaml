@@ -1,0 +1,69 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: agritrack-backend
+  namespace: agritrack
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: agritrack-frontend
+  namespace: agritrack
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: agritrack-backend
+  namespace: agritrack
+spec:
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY.git
+      ref: main
+    contextDir: backend
+    sourceSecret:
+      name: github-pat
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: agritrack-backend:latest
+  triggers:
+    - type: ConfigChange
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: agritrack-frontend
+  namespace: agritrack
+spec:
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY.git
+      ref: main
+    contextDir: frontend
+    sourceSecret:
+      name: github-pat
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: agritrack-frontend:latest
+  triggers:
+    - type: ConfigChange
