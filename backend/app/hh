@@ -1,15 +1,8 @@
 
-apiVersion: image.openshift.io/v1
-kind: ImageStream
-metadata:
-  name: agritrack-backend
-  namespace: chozhanaws3-dev
----
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: agritrack-backend
-  namespace: chozhanaws3-dev
 spec:
   runPolicy: Serial
   source:
@@ -28,4 +21,3 @@ spec:
       name: agritrack-backend:latest
   triggers:
     - type: ConfigChange
-
